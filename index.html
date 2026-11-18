@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Paul's Letters in Order</title>
+  <meta name="description" content="When did Paul write each letter, and where was he in his travels? A short game based on Wright and Bird's chronology.">
+  <meta property="og:title" content="Paul's Letters in Order">
+  <meta property="og:description" content="When did Paul write each letter, and where was he in his travels? A short game based on Wright and Bird's chronology.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Paul's Letters in Order">
+  <meta name="twitter:description" content="When did Paul write each letter, and where was he in his travels? A short game based on Wright and Bird's chronology.">
+  <meta name="theme-color" content="#f7f7f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='white' font-family='system-ui,sans-serif' font-weight='700'%3EP%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --text: #1a1a1a;
+      --text-secondary: #4b5563;
+      --text-tertiary: #6b7280;
+      --text-on-primary: #ffffff;
+      --success: #15803d;
+      --danger: #dc2626;
+      --fill-primary: #2563eb;
+      --fill-secondary: #f3f4f6;
+      --fill-success: #dcfce7;
+      --fill-danger: #fee2e2;
+      --bg: #f7f7f8;
+      --bg-elevated: #ffffff;
+      --border: #e5e7eb;
+      --border-subtle: #eeeeef;
+      --border-strong: #9ca3af;
+      --radius-full: 999px;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --phase-other: #9ca3af;
+      --phase-1: #2563eb;
+      --phase-3: #d97706;
+      --phase-4: #0891b2;
+      --phase-5: #4338ca;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f3f4f6;
+        --text-secondary: #d1d5db;
+        --text-tertiary: #9ca3af;
+        --text-on-primary: #ffffff;
+        --success: #4ade80;
+        --danger: #f87171;
+        --fill-primary: #3b82f6;
+        --fill-secondary: #26262b;
+        --fill-success: #14532d;
+        --fill-danger: #7f1d1d;
+        --bg: #111113;
+        --bg-elevated: #1c1c1f;
+        --border: #3f3f46;
+        --border-subtle: #27272a;
+        --border-strong: #71717a;
+        --phase-other: #6b7280;
+        --phase-1: #60a5fa;
+        --phase-3: #fbbf24;
+        --phase-4: #22d3ee;
+        --phase-5: #818cf8;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+    }
+    body { min-height: 100vh; }
+    button {
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
+      appearance: none;
+      -webkit-appearance: none;
+      margin: 0;
+      text-align: left;
+    }
+    button:focus-visible {
+      outline: 2px solid var(--fill-primary);
+      outline-offset: 2px;
+    }
+    noscript {
+      display: block;
+      max-width: 680px;
+      margin: 24px auto;
+      padding: 16px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <noscript>This game needs JavaScript to run. Please turn it on and reload the page.</noscript>
+  <div id="app"></div>
+  <script type="importmap">
+  {
+    "imports": {
+      "preact": "https://esm.sh/preact@10.26.9",
+      "preact/hooks": "https://esm.sh/preact@10.26.9/hooks",
+      "htm": "https://esm.sh/htm@3.1.1"
+    }
+  }
+  </script>
+  <script type="module">
+    import { h, render } from "preact";
+    import { useState, useMemo } from "preact/hooks";
+    import htm from "htm";
+    const html = htm.bind(h);
+
+    const PHASES = [
+      {
+        id: 0, name: "Before the journeys", short: "Early years", dates: "33–47",
+        events: [
+          { date: "33", text: "Jesus revealed to Saul on the road to Damascus" },
+          { date: "33–6", text: "Paul in Damascus, Arabia, Damascus again" },
+          { date: "36", text: "First post-Damascus visit to Jerusalem (Gal. 1.18–24)" },
+          { date: "36–46", text: "Paul in Tarsus; brought to Antioch by Barnabas" },
+          { date: "46/7", text: "'Famine visit' to Jerusalem (Acts 11.30; Gal. 2.1–10)" },
+        ],
+      },
+      {
+        id: 1, name: "First missionary journey", short: "1st journey", dates: "47–8",
+        events: [{ date: "47–8", text: "Paul and Barnabas: Cyprus and south Galatia" }],
+      },
+      {
+        id: 2, name: "Antioch and the Jerusalem conference", short: "Antioch & Jerusalem", dates: "48–9",
+        events: [
+          { date: "48", text: "Peter in Antioch (Gal. 2.11–21); crisis in Galatia" },
+          { date: "48", text: "GALATIANS", letter: true },
+          { date: "48/9", text: "Jerusalem conference (Acts 15)" },
+        ],
+      },
+      {
+        id: 3, name: "Second missionary journey", short: "2nd journey", dates: "49–52",
+        events: [
+          { date: "49", text: "Claudius expels Jews from Rome", world: true },
+          { date: "49", text: "Paul and Silas set out: Greece" },
+          { date: "50/1", text: "1 AND 2 THESSALONIANS", letter: true },
+          { date: "51–52", text: "Paul in Corinth (early 51 to late 52)" },
+        ],
+      },
+      {
+        id: 4, name: "Third missionary journey", short: "3rd journey", dates: "52/3–57",
+        events: [
+          { date: "52/3", text: "Paul in Jerusalem, Antioch; sets out for Ephesus" },
+          { date: "53–6", text: "In Ephesus" },
+          { date: "53", text: "1 CORINTHIANS", letter: true },
+          { date: "53/4", text: "Short, painful visit to Corinth" },
+          { date: "54", text: "Death of Claudius; accession of Nero", world: true },
+          { date: "55", text: "PHILIPPIANS", letter: true },
+          { date: "55/6", text: "PHILEMON, COLOSSIANS, EPHESIANS", letter: true },
+          { date: "56", text: "Released from prison; continues journey to Corinth" },
+          { date: "56", text: "2 CORINTHIANS", letter: true },
+          { date: "57", text: "ROMANS", letter: true },
+          { date: "57", text: "From Corinth to Jerusalem" },
+        ],
+      },
+      {
+        id: 5, name: "Arrest and journey to Rome", short: "Arrest & Rome", dates: "57–62",
+        events: [
+          { date: "57–9", text: "'Hearings' and imprisonment in Jerusalem and Caesarea" },
+          { date: "59", text: "Autumn: voyage to Rome; shipwreck on Malta" },
+          { date: "60", text: "Early: arrival in Rome" },
+          { date: "60–2", text: "House arrest in Rome" },
+        ],
+      },
+      {
+        id: 6, name: "Release and further travels", short: "After release", dates: "62–64+",
+        events: [
+          { date: "62–4", text: "Further travels, either to Spain or to the east, or both?" },
+          { date: "after 62", text: "1 AND 2 TIMOTHY AND TITUS?", letter: true },
+          { date: "64", text: "Fire of Rome; persecution of Christians in Rome", world: true },
+          { date: "64+", text: "Death of Paul (64 or later)" },
+        ],
+      },
+    ];
+
+    const LETTERS = [
+      { id: 0, name: "Galatians", date: "AD 48", phase: 2 },
+      { id: 1, name: "1 & 2 Thessalonians", date: "AD 50/51", phase: 3 },
+      { id: 2, name: "1 Corinthians", date: "AD 53", phase: 4 },
+      { id: 3, name: "Philippians", date: "AD 55", phase: 4 },
+      { id: 4, name: "Philemon, Colossians & Ephesians", date: "AD 55/56", phase: 4 },
+      { id: 5, name: "2 Corinthians", date: "AD 56", phase: 4 },
+      { id: 6, name: "Romans", date: "AD 57", phase: 4 },
+      { id: 7, name: "1 & 2 Timothy, Titus", date: "after AD 62?", phase: 6, note: "Authorship and date disputed" },
+    ];
+
+    const MATCH_ITEMS = [
+      ...LETTERS.map((l) => ({ label: l.name, phase: l.phase, kind: "Letter", date: l.date })),
+      { label: "Preaching in Cyprus and south Galatia with Barnabas", phase: 1, kind: "Event", date: "AD 47–8" },
+      { label: "Peter in Antioch and the crisis in Galatia", phase: 2, kind: "Event", date: "AD 48" },
+      { label: "The Jerusalem conference (Acts 15)", phase: 2, kind: "Event", date: "AD 48/9" },
+      { label: "Paul's long stay in Corinth", phase: 3, kind: "Event", date: "AD 51–52" },
+      { label: "The short, painful visit to Corinth", phase: 4, kind: "Event", date: "AD 53/4" },
+      { label: "Released from prison, continues to Corinth", phase: 4, kind: "Event", date: "AD 56" },
+      { label: "Shipwreck on Malta", phase: 5, kind: "Event", date: "AD 59" },
+      { label: "House arrest in Rome", phase: 5, kind: "Event", date: "AD 60–2" },
+      { label: "Travels to Spain or the east, or both?", phase: 6, kind: "Event", date: "AD 62–4" },
+    ];
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+      }
+      return a;
+    }
+
+    function makePairs(n) {
+      const out = [];
+      for (let k = 0; k < n; k++) {
+        const s = shuffle(LETTERS);
+        out.push([s[0], s[1]]);
+      }
+      return out;
+    }
+
+    function phaseColor(p) {
+      if (p === 1) return "var(--phase-1)";
+      if (p === 3) return "var(--phase-3)";
+      if (p === 4) return "var(--phase-4)";
+      if (p === 5) return "var(--phase-5)";
+      return "var(--phase-other)";
+    }
+
+    const fontBody = { fontFamily: "var(--font)", fontSize: "1rem", lineHeight: 1.5 };
+    const fontSmall = { fontFamily: "var(--font)", fontSize: "0.875rem", lineHeight: 1.45, color: "var(--text-secondary)" };
+    const fontLabel = { fontFamily: "var(--font)", fontSize: "0.75rem", lineHeight: 1.3, fontWeight: 600 };
+    const fontH1 = { fontFamily: "var(--font)", fontSize: "1.75rem", lineHeight: 1.2, fontWeight: 700 };
+    const fontH2 = { fontFamily: "var(--font)", fontSize: "1.5rem", lineHeight: 1.25, fontWeight: 700 };
+    const fontH3 = { fontFamily: "var(--font)", fontSize: "1.15rem", lineHeight: 1.3, fontWeight: 600 };
+    const fontCaption = { fontFamily: "var(--font)", fontSize: "0.75rem", lineHeight: 1.45 };
+
+    function btn(primary) {
+      return {
+        fontFamily: "var(--font)",
+        fontSize: "0.875rem",
+        lineHeight: 1.3,
+        fontWeight: 600,
+        padding: "12px 16px",
+        minHeight: 44,
+        borderRadius: "var(--radius-full)",
+        border: "none",
+        cursor: "pointer",
+        background: primary ? "var(--fill-primary)" : "var(--fill-secondary)",
+        color: primary ? "var(--text-on-primary)" : "var(--text)",
+        whiteSpace: "normal",
+      };
+    }
+
+    function card(extra) {
+      return {
+        fontFamily: "var(--font)",
+        fontSize: "1rem",
+        lineHeight: 1.4,
+        fontWeight: 500,
+        textAlign: "left",
+        padding: "12px 14px",
+        minHeight: 44,
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border)",
+        background: "var(--bg-elevated)",
+        color: "var(--text)",
+        cursor: "pointer",
+        width: "100%",
+        ...extra,
+      };
+    }
+
+    function Pill({ p }) {
+      return html`
+        <span style=${{ display: "inline-flex", alignItems: "center", gap: 6, ...fontLabel, fontWeight: 500, color: "var(--text-secondary)" }}>
+          <span style=${{ width: 10, height: 10, borderRadius: 5, background: phaseColor(p), display: "inline-block", flexShrink: 0 }}></span>
+          ${PHASES[p].short}
+        </span>
+      `;
+    }
+
+    function App() {
+      const [mode, setMode] = useState("learn");
+
+      const [pool, setPool] = useState(() => shuffle(LETTERS));
+      const [placed, setPlaced] = useState([]);
+      const [checked, setChecked] = useState(false);
+      const [attempts, setAttempts] = useState(0);
+      const [bestOrder, setBestOrder] = useState(0);
+
+      const MROUNDS = 10;
+      const [mItems, setMItems] = useState(() => shuffle(MATCH_ITEMS).slice(0, MROUNDS));
+      const [mRound, setMRound] = useState(0);
+      const [mPick, setMPick] = useState(null);
+      const [mScore, setMScore] = useState(0);
+
+      const ROUNDS = 10;
+      const [pairs, setPairs] = useState(() => makePairs(ROUNDS));
+      const [round, setRound] = useState(0);
+      const [picked, setPicked] = useState(null);
+      const [score, setScore] = useState(0);
+      const [streak, setStreak] = useState(0);
+      const [bestStreak, setBestStreak] = useState(0);
+
+      const correctCount = useMemo(
+        () => placed.filter((l, i) => l.id === i).length,
+        [placed]
+      );
+
+      function place(l) {
+        if (checked) return;
+        setPool(pool.filter((p) => p.id !== l.id));
+        setPlaced([...placed, l]);
+      }
+      function unplace(l) {
+        if (checked) return;
+        setPlaced(placed.filter((p) => p.id !== l.id));
+        setPool([...pool, l]);
+      }
+      function check() {
+        setChecked(true);
+        setAttempts(attempts + 1);
+        setBestOrder(Math.max(bestOrder, correctCount));
+      }
+      function resetOrder() {
+        setPool(shuffle(LETTERS));
+        setPlaced([]);
+        setChecked(false);
+      }
+      function keepCorrect() {
+        const prefix = [];
+        for (let i = 0; i < placed.length; i++) {
+          if (placed[i].id === i) prefix.push(placed[i]);
+          else break;
+        }
+        const rest = placed.filter((l) => !prefix.some((p) => p.id === l.id));
+        setPlaced(prefix);
+        setPool(shuffle([...pool, ...rest]));
+        setChecked(false);
+      }
+
+      function pickMatch(p) {
+        if (mPick !== null) return;
+        setMPick(p);
+        if (p === mItems[mRound].phase) setMScore(mScore + 1);
+      }
+      function resetMatch() {
+        setMItems(shuffle(MATCH_ITEMS).slice(0, MROUNDS));
+        setMRound(0);
+        setMPick(null);
+        setMScore(0);
+      }
+
+      function pickDuel(l) {
+        if (picked !== null) return;
+        const [a, b] = pairs[round];
+        const earlier = a.id < b.id ? a : b;
+        setPicked(l.id);
+        if (l.id === earlier.id) {
+          setScore(score + 1);
+          const s = streak + 1;
+          setStreak(s);
+          setBestStreak(Math.max(bestStreak, s));
+        } else {
+          setStreak(0);
+        }
+      }
+      function resetDuel() {
+        setPairs(makePairs(ROUNDS));
+        setRound(0);
+        setPicked(null);
+        setScore(0);
+        setStreak(0);
+      }
+
+      const tabs = [
+        { key: "learn", label: "Learn" },
+        { key: "order", label: "Put them in order" },
+        { key: "journey", label: "Which journey?" },
+        { key: "duel", label: "Which came first?" },
+      ];
+
+      const allPlaced = placed.length === LETTERS.length;
+      const label = { ...fontLabel, color: "var(--text-tertiary)", marginBottom: 8, letterSpacing: "0.04em" };
+
+      const timelineSegs = [
+        { p: 0, from: 33, to: 47 },
+        { p: 1, from: 47, to: 48.5 },
+        { p: 2, from: 48.5, to: 49 },
+        { p: 3, from: 49, to: 52.5 },
+        { p: 4, from: 52.5, to: 57 },
+        { p: 5, from: 57, to: 62 },
+        { p: 6, from: 62, to: 64.5 },
+      ];
+
+      return html`
+        <div style=${{ ...fontBody, color: "var(--text)", background: "var(--bg)", padding: "24px 16px 40px", maxWidth: 680, margin: "0 auto" }}>
+          <div style=${{ ...fontH1, marginBottom: 6 }}>${"Paul's Letters in Order"}</div>
+          <div style=${{ ...fontSmall, marginBottom: 18 }}>
+            When did Paul write each letter, and where was he in his travels? Dates follow Wright and Bird, The New Testament in Its World (2019), p. 363.
+          </div>
+
+          <div style=${{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 22 }}>
+            ${tabs.map((t) => html`
+              <button key=${t.key} style=${btn(mode === t.key)} onClick=${() => setMode(t.key)}>
+                ${t.label}
+              </button>
+            `)}
+          </div>
+
+          ${mode === "learn" && html`
+            <div>
+              <div style=${{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 20 }}>
+                <div style=${label}>${"PAUL'S MINISTRY, AD 33–64"}</div>
+                <div style=${{ display: "flex", width: "100%", height: 28, borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                  ${timelineSegs.map((s) => html`
+                    <div
+                      key=${s.p}
+                      title=${PHASES[s.p].name}
+                      style=${{ flexGrow: s.to - s.from, flexBasis: 0, background: phaseColor(s.p), opacity: s.p === 0 || s.p === 2 || s.p === 6 ? 0.45 : 1, borderRight: "1px solid var(--bg)" }}
+                    ></div>
+                  `)}
+                </div>
+                <div style=${{ display: "flex", justifyContent: "space-between", ...fontLabel, fontWeight: 500, color: "var(--text-tertiary)" }}>
+                  <span>33</span><span>47</span><span>57</span><span>64</span>
+                </div>
+                <div style=${{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 6 }}>
+                  ${PHASES.map((p) => html`<span key=${p.id}><${Pill} p=${p.id} /></span>`)}
+                </div>
+              </div>
+
+              ${PHASES.map((p) => html`
+                <div key=${p.id} style=${{ display: "flex", gap: 12, marginBottom: 18 }}>
+                  <div style=${{ width: 5, borderRadius: 3, background: phaseColor(p.id), flexShrink: 0 }}></div>
+                  <div style=${{ flex: 1, minWidth: 0 }}>
+                    <div style=${fontH3}>${p.name}</div>
+                    <div style=${{ ...fontSmall, marginBottom: 6 }}>${"AD " + p.dates}</div>
+                    ${p.events.map((e, i) => html`
+                      <div key=${i} style=${{ display: "flex", gap: 10, padding: "4px 0", borderTop: "1px solid var(--border-subtle)", flexWrap: "wrap" }}>
+                        <span style=${{ ...fontSmall, color: "var(--text-tertiary)", minWidth: 58, flexShrink: 0 }}>${e.date}</span>
+                        <span style=${{
+                          fontWeight: e.letter ? 600 : 400,
+                          color: e.world ? "var(--text-secondary)" : "inherit",
+                          fontStyle: e.world ? "italic" : "normal",
+                          flex: 1,
+                          minWidth: 0,
+                        }}>
+                          ${e.letter ? "✉ " + e.text : e.text}
+                        </span>
+                      </div>
+                    `)}
+                  </div>
+                </div>
+              `)}
+
+              <div style=${{ padding: 16, borderRadius: "var(--radius-lg)", background: "var(--fill-secondary)", marginTop: 4 }}>
+                <div style=${{ fontWeight: 600, marginBottom: 4 }}>Things to notice</div>
+                <div style=${fontSmall}>
+                  Five of the eight letter groups come from the third journey, mostly the Ephesus years. On this reconstruction, Philippians, Philemon, Colossians and Ephesians come before the release from prison in 56, years before the Roman house arrest. No letters are placed in the arrest and Rome years. Memory hook for the order: G-T-C-P-P-C-R-P, "Good Teachers Can Patiently Prepare Clever Roman Pupils."
+                </div>
+              </div>
+            </div>
+          `}
+
+          ${mode === "order" && html`
+            <div>
+              <div style=${{ ...fontSmall, marginBottom: 14 }}>
+                Tap the letters in the order you think Paul wrote them, earliest first. Tap a placed letter to send it back.
+              </div>
+
+              <div style=${label}>YOUR TIMELINE</div>
+              <div style=${{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                ${LETTERS.map((_, i) => {
+                  const l = placed[i];
+                  if (!l) {
+                    return html`
+                      <div key=${i} style=${{ padding: "12px 14px", minHeight: 44, borderRadius: "var(--radius-lg)", border: "1px dashed var(--border-strong)", color: "var(--text-tertiary)", ...fontSmall }}>
+                        ${i + 1 + "."}
+                      </div>
+                    `;
+                  }
+                  const ok = l.id === i;
+                  return html`
+                    <button
+                      key=${i}
+                      style=${card({
+                        border: checked ? `2px solid ${ok ? "var(--success)" : "var(--danger)"}` : "1px solid var(--border)",
+                        background: checked ? (ok ? "var(--fill-success)" : "var(--fill-danger)") : "var(--bg-elevated)",
+                      })}
+                      onClick=${() => unplace(l)}
+                    >
+                      <span style=${{ color: "var(--text-tertiary)", marginRight: 8 }}>${i + 1 + "."}</span>
+                      ${l.name}
+                      ${checked && html`
+                        <div style=${{ display: "flex", flexWrap: "wrap", gap: "2px 12px", alignItems: "center", marginTop: 4 }}>
+                          <span style=${{ ...fontSmall, color: ok ? "var(--success)" : "var(--danger)" }}>
+                            ${ok ? "Correct · " + l.date : "Not here · " + l.date + " (belongs at " + (l.id + 1) + ")"}
+                          </span>
+                          <${Pill} p=${l.phase} />
+                        </div>
+                      `}
+                    </button>
+                  `;
+                })}
+              </div>
+
+              ${pool.length > 0 && html`
+                <div>
+                  <div style=${label}>LETTERS TO PLACE</div>
+                  <div style=${{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                    ${pool.map((l) => html`
+                      <button key=${l.id} style=${card({ width: "auto", background: "var(--fill-secondary)", border: "none" })} onClick=${() => place(l)}>
+                        ${l.name}
+                      </button>
+                    `)}
+                  </div>
+                </div>
+              `}
+
+              ${checked && html`
+                <div style=${{ padding: 16, borderRadius: "var(--radius-lg)", background: "var(--fill-secondary)", marginBottom: 16 }}>
+                  <div style=${fontH3}>
+                    ${correctCount === LETTERS.length ? "Perfect order!" : correctCount + " of " + LETTERS.length + " in the right spot"}
+                  </div>
+                  <div style=${fontSmall}>${"Attempts: " + attempts + " · Best: " + bestOrder + "/" + LETTERS.length}</div>
+                </div>
+              `}
+
+              <div style=${{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                ${!checked && html`
+                  <button style=${{ ...btn(true), opacity: allPlaced ? 1 : 0.4 }} onClick=${() => allPlaced && check()}>
+                    Check my order
+                  </button>
+                `}
+                ${checked && correctCount < LETTERS.length && html`
+                  <button style=${btn(true)} onClick=${keepCorrect}>
+                    Keep the right start, try the rest
+                  </button>
+                `}
+                <button style=${btn(false)} onClick=${resetOrder}>
+                  Shuffle and restart
+                </button>
+              </div>
+            </div>
+          `}
+
+          ${mode === "journey" && html`
+            <div>
+              ${mRound < MROUNDS ? html`
+                <div>
+                  <div style=${{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, ...fontSmall, marginBottom: 14 }}>
+                    <span>${"Round " + (mRound + 1) + " of " + MROUNDS}</span>
+                    <span>${"Score " + mScore}</span>
+                  </div>
+                  <div style=${label}>${mItems[mRound].kind === "Letter" ? "WHERE WAS PAUL WHEN HE WROTE..." : "WHEN DID THIS HAPPEN?"}</div>
+                  <div style=${{ ...fontH3, marginBottom: 16 }}>${mItems[mRound].label}</div>
+                  <div style=${{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                    ${PHASES.slice(1).map((p) => {
+                      const ans = mItems[mRound].phase;
+                      let extra = {};
+                      if (mPick !== null) {
+                        if (p.id === ans) extra = { border: "2px solid var(--success)", background: "var(--fill-success)" };
+                        else if (p.id === mPick) extra = { border: "2px solid var(--danger)", background: "var(--fill-danger)" };
+                      }
+                      return html`
+                        <button key=${p.id} style=${card({ display: "flex", alignItems: "center", gap: 10, ...extra })} onClick=${() => pickMatch(p.id)}>
+                          <span style=${{ width: 12, height: 12, borderRadius: 6, background: phaseColor(p.id), flexShrink: 0 }}></span>
+                          <span>
+                            ${p.name}
+                            <span style=${{ ...fontSmall, color: "var(--text-tertiary)" }}>${"  AD " + p.dates}</span>
+                          </span>
+                        </button>
+                      `;
+                    })}
+                  </div>
+                  ${mPick !== null && html`
+                    <div style=${{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+                      <span style=${{ fontWeight: 600, color: mPick === mItems[mRound].phase ? "var(--success)" : "var(--danger)" }}>
+                        ${mPick === mItems[mRound].phase ? "Correct!" : "Not quite"}
+                      </span>
+                      <span style=${fontSmall}>${mItems[mRound].date}</span>
+                      <button style=${btn(true)} onClick=${() => { setMPick(null); setMRound(mRound + 1); }}>
+                        ${mRound + 1 === MROUNDS ? "See my score" : "Next"}
+                      </button>
+                    </div>
+                  `}
+                </div>
+              ` : html`
+                <div style=${{ padding: 20, borderRadius: "var(--radius-lg)", background: "var(--fill-secondary)" }}>
+                  <div style=${fontH2}>${mScore + " / " + MROUNDS}</div>
+                  <div style=${{ marginBottom: 16, marginTop: 4 }}>
+                    ${mScore === MROUNDS ? "You could lead the tour group." : mScore >= 7 ? "Nearly there. Check the Learn tab for the ones you missed." : "Have a look at the Learn tab, then go again."}
+                  </div>
+                  <button style=${btn(true)} onClick=${resetMatch}>
+                    Play again
+                  </button>
+                </div>
+              `}
+            </div>
+          `}
+
+          ${mode === "duel" && html`
+            <div>
+              ${round < ROUNDS ? html`
+                <div>
+                  <div style=${{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 8, ...fontSmall, marginBottom: 14 }}>
+                    <span>${"Round " + (round + 1) + " of " + ROUNDS}</span>
+                    <span>${"Score " + score + " · Streak " + streak}</span>
+                  </div>
+                  <div style=${{ ...fontH3, marginBottom: 14 }}>Which was written first?</div>
+                  <div style=${{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+                    ${pairs[round].map((l) => {
+                      const [a, b] = pairs[round];
+                      const earlierId = a.id < b.id ? a.id : b.id;
+                      let extra = {};
+                      if (picked !== null) {
+                        if (l.id === earlierId) extra = { border: "2px solid var(--success)", background: "var(--fill-success)" };
+                        else if (l.id === picked) extra = { border: "2px solid var(--danger)", background: "var(--fill-danger)" };
+                      }
+                      return html`
+                        <button key=${l.id} style=${card({ padding: "18px 16px", ...extra })} onClick=${() => pickDuel(l)}>
+                          ${l.name}
+                          ${picked !== null && html`
+                            <div style=${{ display: "flex", flexWrap: "wrap", gap: "2px 12px", alignItems: "center", marginTop: 4 }}>
+                              <span style=${{ ...fontSmall, color: "var(--text-secondary)" }}>${l.date}</span>
+                              <${Pill} p=${l.phase} />
+                            </div>
+                          `}
+                        </button>
+                      `;
+                    })}
+                  </div>
+                  ${picked !== null && html`
+                    <div style=${{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+                      <span style=${{ fontWeight: 600, color: picked === Math.min(pairs[round][0].id, pairs[round][1].id) ? "var(--success)" : "var(--danger)" }}>
+                        ${picked === Math.min(pairs[round][0].id, pairs[round][1].id) ? "Correct!" : "Not quite"}
+                      </span>
+                      <button style=${btn(true)} onClick=${() => { setPicked(null); setRound(round + 1); }}>
+                        ${round + 1 === ROUNDS ? "See my score" : "Next"}
+                      </button>
+                    </div>
+                  `}
+                </div>
+              ` : html`
+                <div style=${{ padding: 20, borderRadius: "var(--radius-lg)", background: "var(--fill-secondary)" }}>
+                  <div style=${fontH2}>${score + " / " + ROUNDS}</div>
+                  <div style=${{ ...fontSmall, marginBottom: 14 }}>${"Best streak: " + bestStreak}</div>
+                  <div style=${{ marginBottom: 16 }}>
+                    ${score === ROUNDS ? "Flawless. You know your Paul." : score >= 7 ? "Strong work. A couple more rounds and you'll have it." : "Have a look at the Learn tab, then go again."}
+                  </div>
+                  <button style=${btn(true)} onClick=${resetDuel}>
+                    Play again
+                  </button>
+                </div>
+              `}
+            </div>
+          `}
+
+          <div style=${{ ...fontCaption, color: "var(--text-tertiary)", marginTop: 32 }}>
+            Source: N. T. Wright and Michael F. Bird, The New Testament in Its World (SPCK/Zondervan, 2019), "Sketch of Pauline chronology", p. 363. Letters with a shared date are grouped. Question marks follow the book: the Pastoral letters' date and authorship, and Paul's later travels, are uncertain.
+          </div>
+        </div>
+      `;
+    }
+
+    render(html`<${App} />`, document.getElementById("app"));
+  </script>
+</body>
+</html>
